@@ -78,11 +78,74 @@ defmodule TodoWeb.ListLiveTest do
   describe "Show" do
     setup [:create_list]
 
-    test "displays list", %{conn: conn, list: list} do
+    @create_attrs %{completed: true, content: "some content"}
+    @update_attrs %{completed: false, content: "some updated content"}
+    @invalid_attrs %{completed: false, content: nil}
+
+    test "displays all items in the list", %{conn: conn, list: list} do
+      item1 = item_fixture(%{list_id: list.id})
+      item2 = item_fixture(%{list_id: list.id})
+
       {:ok, _show_live, html} = live(conn, Routes.list_show_path(conn, :show, list))
 
       assert html =~ "Show List"
       assert html =~ list.title
+      assert html =~ item1.content
+      assert html =~ item2.content
+    end
+
+    test "saves new item", %{conn: conn, list: list} do
+      {:ok, index_live, _html} = live(conn, Routes.list_show_path(conn, :show, list))
+
+      assert index_live |> element("a", "New Item") |> render_click() =~
+               "New Item"
+
+      assert_patch(index_live, Routes.list_show_path(conn, :new, list))
+
+      assert index_live
+             |> form("#item-form", item: @invalid_attrs)
+             |> render_change() =~ "can&#39;t be blank"
+
+      {:ok, _, html} =
+        index_live
+        |> form("#item-form", item: @create_attrs)
+        |> render_submit()
+        |> follow_redirect(conn, Routes.list_show_path(conn, :show, list))
+
+      assert html =~ "Item created successfully"
+      assert html =~ "some content"
+    end
+
+    test "updates item in listing", %{conn: conn, list: list} do
+      item = item_fixture(%{list_id: list.id})
+
+      {:ok, index_live, _html} = live(conn, Routes.list_show_path(conn, :show, list))
+
+      assert index_live |> element("#item-#{item.id} a", "Edit") |> render_click() =~
+               "Edit Item"
+
+      assert_patch(index_live, Routes.list_show_path(conn, :edit, list, item))
+
+      assert index_live
+             |> form("#item-form", item: @invalid_attrs)
+             |> render_change() =~ "can&#39;t be blank"
+
+      {:ok, _, html} =
+        index_live
+        |> form("#item-form", item: @update_attrs)
+        |> render_submit()
+        |> follow_redirect(conn, Routes.list_show_path(conn, :show, list))
+
+      assert html =~ "Item updated successfully"
+      assert html =~ "some updated content"
+    end
+
+    test "deletes item in listing", %{conn: conn, list: list} do
+      item = item_fixture(%{list_id: list.id})
+      {:ok, index_live, _html} = live(conn, Routes.list_show_path(conn, :show, list))
+
+      assert index_live |> element("#item-#{item.id} a", "Delete") |> render_click()
+      refute has_element?(index_live, "#item-#{item.id}")
     end
   end
 end

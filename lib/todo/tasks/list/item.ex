@@ -13,7 +13,7 @@ defmodule Todo.Tasks.List.Item do
   schema "items" do
     field :completed, :boolean, default: false
     field :content, :string
-    field :list_id, :id
+    field :list_id, :binary_id
 
     timestamps()
   end
@@ -21,7 +21,7 @@ defmodule Todo.Tasks.List.Item do
   @doc false
   def changeset(item, attrs) do
     item
-    |> cast(attrs, [:content, :completed])
-    |> validate_required([:content, :completed])
+    |> cast(attrs, [:content, :completed, :list_id])
+    |> validate_required([:content, :completed, :list_id])
   end
 end

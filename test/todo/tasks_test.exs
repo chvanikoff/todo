@@ -16,7 +16,7 @@ defmodule Todo.TasksTest do
     end
 
     test "get_list!/1 returns the list with given id" do
-      list = list_fixture()
+      list = list_fixture() |> Repo.preload(:items)
       assert Tasks.get_list!(list.id) == list
     end
 
@@ -42,7 +42,7 @@ defmodule Todo.TasksTest do
     end
 
     test "update_list/2 with invalid data returns error changeset" do
-      list = list_fixture()
+      list = list_fixture() |> Repo.preload(:items)
       assert {:error, %Ecto.Changeset{}} = Tasks.update_list(list, @invalid_attrs)
       assert list == Tasks.get_list!(list.id)
     end
@@ -66,9 +66,18 @@ defmodule Todo.TasksTest do
 
     @invalid_attrs %{completed: nil, content: nil}
 
-    test "list_items/0 returns all items" do
-      item = item_fixture()
-      assert Tasks.list_items() == [item]
+    test "list_items/1 returns all items in the list" do
+      list1 = list_fixture()
+      list2 = list_fixture()
+      item1 = item_fixture(%{list_id: list1.id})
+      item2 = item_fixture(%{list_id: list1.id})
+      item3 = item_fixture(%{list_id: list2.id})
+
+      result = Tasks.list_items(list1.id)
+
+      assert item1 in result
+      assert item2 in result
+      refute item3 in result
     end
 
     test "get_item!/1 returns the item with given id" do
@@ -77,7 +86,8 @@ defmodule Todo.TasksTest do
     end
 
     test "create_item/1 with valid data creates a item" do
-      valid_attrs = %{completed: true, content: "some content"}
+      list = list_fixture()
+      valid_attrs = %{completed: true, content: "some content", list_id: list.id}
 
       assert {:ok, %Item{} = item} = Tasks.create_item(valid_attrs)
       assert item.completed == true

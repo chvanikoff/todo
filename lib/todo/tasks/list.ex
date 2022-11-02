@@ -9,10 +9,14 @@ defmodule Todo.Tasks.List do
 
   import Ecto.Changeset
 
+  alias __MODULE__.Item
+
   @primary_key {:id, :binary_id, autogenerate: true}
   schema "lists" do
     field :archived, :boolean, default: false
     field :title, :string
+
+    has_many :items, Item
 
     timestamps()
   end

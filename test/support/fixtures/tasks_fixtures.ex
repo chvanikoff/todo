@@ -23,11 +23,14 @@ defmodule Todo.TasksFixtures do
   Generate a item.
   """
   def item_fixture(attrs \\ %{}) do
+    list = list_fixture()
+
     {:ok, item} =
       attrs
       |> Enum.into(%{
         completed: true,
-        content: "some content"
+        content: "some content",
+        list_id: list.id
       })
       |> Todo.Tasks.create_item()
 

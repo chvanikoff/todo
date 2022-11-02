@@ -22,20 +22,24 @@ defmodule Todo.Tasks do
   end
 
   @doc """
-  Gets a single list.
+  Gets a single list with items preloaded.
 
   Raises `Ecto.NoResultsError` if the List does not exist.
 
   ## Examples
 
       iex> get_list!(123)
-      %List{}
+      %List{items: [%Item{}]}
 
       iex> get_list!(456)
       ** (Ecto.NoResultsError)
 
   """
-  def get_list!(id), do: Repo.get!(List, id)
+  def get_list!(id) do
+    List
+    |> Repo.get!(id)
+    |> Repo.preload(:items)
+  end
 
   @doc """
   Creates a list.
@@ -105,16 +109,20 @@ defmodule Todo.Tasks do
   alias Todo.Tasks.List.Item
 
   @doc """
-  Returns the list of items.
+  Returns the list of items in the list.
 
   ## Examples
 
-      iex> list_items()
-      [%Item{}, ...]
+      iex> list_items(42)
+      [%Item{list_id: 42}, ...]
 
   """
-  def list_items do
-    Repo.all(Item)
+  def list_items(list_id) do
+    query =
+      from i in Item,
+        where: i.list_id == ^list_id
+
+    Repo.all(query)
   end
 
   @doc """

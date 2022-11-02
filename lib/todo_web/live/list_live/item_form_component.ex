@@ -1,4 +1,4 @@
-defmodule TodoWeb.ItemLive.FormComponent do
+defmodule TodoWeb.ListLive.ItemFormComponent do
   use TodoWeb, :live_component
 
   alias Todo.Tasks
@@ -10,7 +10,8 @@ defmodule TodoWeb.ItemLive.FormComponent do
     {:ok,
      socket
      |> assign(assigns)
-     |> assign(:changeset, changeset)}
+     |> assign(:changeset, changeset)
+     |> assign(:list_id, item.list_id)}
   end
 
   @impl true
@@ -41,6 +42,8 @@ defmodule TodoWeb.ItemLive.FormComponent do
   end
 
   defp save_item(socket, :new, item_params) do
+    item_params = Map.put(item_params, "list_id", socket.assigns.list_id)
+
     case Tasks.create_item(item_params) do
       {:ok, _item} ->
         {:noreply,

@@ -1,4 +1,4 @@
-defmodule TodoWeb.ListLive.FormComponent do
+defmodule TodoWeb.ListLive.ListFormComponent do
   use TodoWeb, :live_component
 
   alias Todo.Tasks

@@ -1,13 +1,13 @@
 <h1>Show List</h1>
 
-<%= if @live_action in [:edit] do %>
+<%= if @live_action in [:new, :edit] do %>
   <.modal return_to={Routes.list_show_path(@socket, :show, @list)}>
     <.live_component
-      module={TodoWeb.ListLive.FormComponent}
-      id={@list.id}
+      module={TodoWeb.ListLive.ItemFormComponent}
+      id={@item.id || :new}
       title={@page_title}
       action={@live_action}
-      list={@list}
+      item={@item}
       return_to={Routes.list_show_path(@socket, :show, @list)}
     />
   </.modal>
@@ -27,4 +27,29 @@
 
 </ul>
 
+<table>
+  <thead>
+    <tr>
+      <th>Content</th>
+      <th>Completed</th>
+
+      <th></th>
+    </tr>
+  </thead>
+  <tbody id="items">
+    <%= for item <- @list.items do %>
+      <tr id={"item-#{item.id}"}>
+        <td><%= item.content %></td>
+        <td><%= item.completed %></td>
+
+        <td>
+          <span><%= live_patch "Edit", to: Routes.list_show_path(@socket, :edit, @list, item) %></span>
+          <span><%= link "Delete", to: "#", phx_click: "delete", phx_value_id: item.id, data: [confirm: "Are you sure?"] %></span>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
 <span><%= live_redirect "Back", to: Routes.list_index_path(@socket, :index) %></span>
+<span><%= live_patch "New Item", to: Routes.list_show_path(@socket, :new, @list) %></span>

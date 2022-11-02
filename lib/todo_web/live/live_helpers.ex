@@ -14,7 +14,7 @@ defmodule TodoWeb.LiveHelpers do
 
       <.modal return_to={Routes.list_index_path(@socket, :index)}>
         <.live_component
-          module={TodoWeb.ListLive.FormComponent}
+          module={TodoWeb.ListLive.ListFormComponent}
           id={@list.id || :new}
           title={@page_title}
           action={@live_action}

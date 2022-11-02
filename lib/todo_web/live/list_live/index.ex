@@ -14,7 +14,7 @@ defmodule TodoWeb.ListLive.Index do
     {:noreply, apply_action(socket, socket.assigns.live_action, params)}
   end
 
-  defp apply_action(socket, :edit, %{"id" => id}) do
+  defp apply_action(socket, :edit, %{"list_id" => id}) do
     socket
     |> assign(:page_title, "Edit List")
     |> assign(:list, Tasks.get_list!(id))
