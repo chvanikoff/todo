@@ -14,9 +14,8 @@ defmodule TodoWeb.ListLiveTest do
   end
 
   describe "Index" do
-    setup [:create_list]
-
-    test "lists all lists", %{conn: conn, list: list} do
+    test "lists all lists", %{conn: conn} do
+      list = list_fixture()
       {:ok, _index_live, html} = live(conn, Routes.list_index_path(conn, :index))
 
       assert html =~ "Listing Lists"
@@ -45,7 +44,8 @@ defmodule TodoWeb.ListLiveTest do
       assert html =~ "some title"
     end
 
-    test "updates list in listing", %{conn: conn, list: list} do
+    test "updates list in listing", %{conn: conn} do
+      list = list_fixture()
       {:ok, index_live, _html} = live(conn, Routes.list_index_path(conn, :index))
 
       assert index_live |> element("#list-#{list.id} a", "Edit") |> render_click() =~
@@ -67,11 +67,17 @@ defmodule TodoWeb.ListLiveTest do
       assert html =~ "some updated title"
     end
 
-    test "deletes list in listing", %{conn: conn, list: list} do
+    test "switches list `archived` flag back and forth", %{conn: conn} do
+      list = list_fixture(%{archived: false})
       {:ok, index_live, _html} = live(conn, Routes.list_index_path(conn, :index))
 
-      assert index_live |> element("#list-#{list.id} a", "Delete") |> render_click()
-      refute has_element?(index_live, "#list-#{list.id}")
+      assert index_live
+             |> element("#list-#{list.id} input[type=checkbox]")
+             |> render_click() =~ "checked=\"checked\""
+
+      refute index_live
+             |> element("#list-#{list.id} input[type=checkbox]")
+             |> render_click() =~ "checked=\"checked\""
     end
   end
 

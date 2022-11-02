@@ -78,6 +78,21 @@ defmodule Todo.Tasks do
   end
 
   @doc """
+  Switches the list `archived` flag to opposite
+
+  ## Examples
+
+      iex> switch_list_archived(%List{archived: false})
+      {:ok, %List{archived: true}}
+
+      iex> switch_list_archived(%List{archived: true})
+      {:ok, %List{archived: false}}
+  """
+  def switch_list_archived(%List{} = list) do
+    update_list(list, %{archived: not list.archived})
+  end
+
+  @doc """
   Deletes a list.
 
   ## Examples

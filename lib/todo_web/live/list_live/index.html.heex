@@ -26,7 +26,7 @@
     <%= for list <- @lists do %>
       <tr id={"list-#{list.id}"}>
         <td><%= list.title %></td>
-        <td><%= list.archived %></td>
+        <td><input type="checkbox" checked={list.archived} phx-value-id={list.id} phx-click="switch_archived" /></td>
 
         <td>
           <span><%= live_redirect "Show", to: Routes.list_show_path(@socket, :show, list) %></span>

@@ -6,12 +6,17 @@ defmodule TodoWeb.ListLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, :lists, list_lists())}
+    {:ok, socket}
   end
 
   @impl true
   def handle_params(params, _url, socket) do
-    {:noreply, apply_action(socket, socket.assigns.live_action, params)}
+    socket =
+      socket
+      |> assign(:lists, list_lists())
+      |> apply_action(socket.assigns.live_action, params)
+
+    {:noreply, socket}
   end
 
   defp apply_action(socket, :edit, %{"list_id" => id}) do
@@ -33,9 +38,9 @@ defmodule TodoWeb.ListLive.Index do
   end
 
   @impl true
-  def handle_event("delete", %{"id" => id}, socket) do
+  def handle_event("switch_archived", %{"id" => id}, socket) do
     list = Tasks.get_list!(id)
-    {:ok, _} = Tasks.delete_list(list)
+    {:ok, _new_list} = Tasks.switch_list_archived(list)
 
     {:noreply, assign(socket, :lists, list_lists())}
   end

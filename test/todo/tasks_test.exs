@@ -47,6 +47,16 @@ defmodule Todo.TasksTest do
       assert list == Tasks.get_list!(list.id)
     end
 
+    test "switch_list_archived/1 switches the list `archived` flag" do
+      list = list_fixture(%{archived: false})
+
+      assert {:ok, %List{} = list} = Tasks.switch_list_archived(list)
+      assert list.archived == true
+
+      assert {:ok, %List{} = list} = Tasks.switch_list_archived(list)
+      assert list.archived == false
+    end
+
     test "delete_list/1 deletes the list" do
       list = list_fixture()
       assert {:ok, %List{}} = Tasks.delete_list(list)
