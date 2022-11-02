@@ -40,11 +40,10 @@
     <%= for item <- @list.items do %>
       <tr id={"item-#{item.id}"}>
         <td><%= item.content %></td>
-        <td><%= item.completed %></td>
+        <td><input type="checkbox" checked={item.completed} phx-value-id={item.id} phx-click="switch_completed" /></td>
 
         <td>
           <span><%= live_patch "Edit", to: Routes.list_show_path(@socket, :edit, @list, item) %></span>
-          <span><%= link "Delete", to: "#", phx_click: "delete", phx_value_id: item.id, data: [confirm: "Are you sure?"] %></span>
         </td>
       </tr>
     <% end %>

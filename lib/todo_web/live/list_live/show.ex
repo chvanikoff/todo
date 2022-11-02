@@ -34,9 +34,9 @@ defmodule TodoWeb.ListLive.Show do
   end
 
   @impl true
-  def handle_event("delete", %{"id" => id}, socket) do
+  def handle_event("switch_completed", %{"id" => id}, socket) do
     item = Tasks.get_item!(id)
-    {:ok, _} = Tasks.delete_item(item)
+    {:ok, _new_item} = Tasks.switch_item_completed(item)
 
     {:noreply, assign(socket, :list, Tasks.get_list!(socket.assigns.list.id))}
   end

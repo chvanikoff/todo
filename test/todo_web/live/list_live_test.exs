@@ -140,12 +140,17 @@ defmodule TodoWeb.ListLiveTest do
       assert html =~ "some updated content"
     end
 
-    test "deletes item in listing", %{conn: conn, list: list} do
-      item = item_fixture(%{list_id: list.id})
+    test "switches item `completed` flag back and forth", %{conn: conn, list: list} do
+      item = item_fixture(%{list_id: list.id, completed: false})
       {:ok, index_live, _html} = live(conn, Routes.list_show_path(conn, :show, list))
 
-      assert index_live |> element("#item-#{item.id} a", "Delete") |> render_click()
-      refute has_element?(index_live, "#item-#{item.id}")
+      assert index_live
+             |> element("#item-#{item.id} input[type=checkbox]")
+             |> render_click() =~ "checked=\"checked\""
+
+      refute index_live
+             |> element("#item-#{item.id} input[type=checkbox]")
+             |> render_click() =~ "checked=\"checked\""
     end
   end
 end

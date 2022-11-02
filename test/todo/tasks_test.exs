@@ -113,6 +113,16 @@ defmodule Todo.TasksTest do
       assert item == Tasks.get_item!(item.id)
     end
 
+    test "switch_item_completed/1 switches the item `completed` flag" do
+      item = item_fixture(%{completed: false})
+
+      assert {:ok, %Item{} = item} = Tasks.switch_item_completed(item)
+      assert item.completed == true
+
+      assert {:ok, %Item{} = item} = Tasks.switch_item_completed(item)
+      assert item.completed == false
+    end
+
     test "delete_item/1 deletes the item" do
       item = item_fixture()
       assert {:ok, %Item{}} = Tasks.delete_item(item)

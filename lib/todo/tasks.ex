@@ -178,6 +178,21 @@ defmodule Todo.Tasks do
   end
 
   @doc """
+  Switches the item `completed` flag to opposite
+
+  ## Examples
+
+      iex> switch_item_completed(%Item{completed: false})
+      {:ok, %Item{completed: true}}
+
+      iex> switch_item_completed(%Item{completed: true})
+      {:ok, %Item{completed: false}}
+  """
+  def switch_item_completed(%Item{} = item) do
+    update_item(item, %{completed: not item.completed})
+  end
+
+  @doc """
   Deletes a item.
 
   ## Examples
