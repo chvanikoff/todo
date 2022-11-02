@@ -4,9 +4,10 @@ defmodule Todo.Tasks do
   """
 
   import Ecto.Query, warn: false
-  alias Todo.Repo
 
-  alias Todo.Tasks.List
+  alias Todo.Repo
+  alias __MODULE__.List
+  alias __MODULE__.List.Item
 
   @doc """
   Returns the list of lists.
@@ -17,6 +18,7 @@ defmodule Todo.Tasks do
       [%List{}, ...]
 
   """
+  @spec list_lists() :: [List.t()]
   def list_lists do
     Repo.all(List)
   end
@@ -35,6 +37,7 @@ defmodule Todo.Tasks do
       ** (Ecto.NoResultsError)
 
   """
+  @spec get_list!(Ecto.UUID.t()) :: List.t() | no_return()
   def get_list!(id) do
     List
     |> Repo.get!(id)
@@ -53,6 +56,7 @@ defmodule Todo.Tasks do
       {:error, %Ecto.Changeset{}}
 
   """
+  @spec create_list(map()) :: {:ok, List.t()} | {:error, Ecto.Changeset.t()}
   def create_list(attrs \\ %{}) do
     %List{}
     |> List.create_changeset(attrs)
@@ -71,6 +75,7 @@ defmodule Todo.Tasks do
       {:error, %Ecto.Changeset{}}
 
   """
+  @spec update_list(List.t(), map()) :: {:ok, List.t()} | {:error, Ecto.Changeset.t()}
   def update_list(%List{} = list, attrs) do
     list
     |> List.update_changeset(attrs)
@@ -88,24 +93,9 @@ defmodule Todo.Tasks do
       iex> switch_list_archived(%List{archived: true})
       {:ok, %List{archived: false}}
   """
+  @spec switch_list_archived(List.t()) :: {:ok, List.t()} | {:error, Ecto.Changeset.t()}
   def switch_list_archived(%List{} = list) do
     update_list(list, %{archived: not list.archived})
-  end
-
-  @doc """
-  Deletes a list.
-
-  ## Examples
-
-      iex> delete_list(list)
-      {:ok, %List{}}
-
-      iex> delete_list(list)
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def delete_list(%List{} = list) do
-    Repo.delete(list)
   end
 
   @doc """
@@ -117,6 +107,7 @@ defmodule Todo.Tasks do
       %Ecto.Changeset{data: %List{}}
 
   """
+  @spec change_list(List.t() | :new, map()) :: Ecto.Changeset.t()
   def change_list(list, attrs \\ %{})
 
   def change_list(:new, attrs) do
@@ -127,8 +118,6 @@ defmodule Todo.Tasks do
     List.update_changeset(list, attrs)
   end
 
-  alias Todo.Tasks.List.Item
-
   @doc """
   Returns the list of items in the list.
 
@@ -138,6 +127,7 @@ defmodule Todo.Tasks do
       [%Item{list_id: 42}, ...]
 
   """
+  @spec list_items(Ecto.UUID.t()) :: [Item.t()]
   def list_items(list_id) do
     query =
       from i in Item,
@@ -160,6 +150,7 @@ defmodule Todo.Tasks do
       ** (Ecto.NoResultsError)
 
   """
+  @spec get_item!(Ecto.UUID.t()) :: Item.t() | no_return()
   def get_item!(id), do: Repo.get!(Item, id)
 
   @doc """
@@ -174,6 +165,7 @@ defmodule Todo.Tasks do
       {:error, %Ecto.Changeset{}}
 
   """
+  @spec create_item(map()) :: {:ok, Item.t()} | {:error, Ecto.Changeset.t()}
   def create_item(attrs \\ %{}) do
     %Item{}
     |> Item.create_changeset(attrs)
@@ -192,6 +184,7 @@ defmodule Todo.Tasks do
       {:error, %Ecto.Changeset{}}
 
   """
+  @spec update_item(Item.t(), map()) :: {:ok, Item.t()} | {:error, Ecto.Changeset.t()}
   def update_item(%Item{} = item, attrs) do
     item
     |> Item.update_changeset(attrs)
@@ -209,24 +202,9 @@ defmodule Todo.Tasks do
       iex> switch_item_completed(%Item{completed: true})
       {:ok, %Item{completed: false}}
   """
+  @spec switch_item_completed(Item.t()) :: {:ok, Item.t()} | {:error, Ecto.Changeset.t()}
   def switch_item_completed(%Item{} = item) do
     update_item(item, %{completed: not item.completed})
-  end
-
-  @doc """
-  Deletes a item.
-
-  ## Examples
-
-      iex> delete_item(item)
-      {:ok, %Item{}}
-
-      iex> delete_item(item)
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def delete_item(%Item{} = item) do
-    Repo.delete(item)
   end
 
   @doc """
@@ -238,6 +216,7 @@ defmodule Todo.Tasks do
       %Ecto.Changeset{data: %Item{}}
 
   """
+  @spec change_item(Item.t(), map()) :: Ecto.Changeset.t()
   def change_item(item, attrs \\ %{})
 
   def change_item(:new, attrs) do

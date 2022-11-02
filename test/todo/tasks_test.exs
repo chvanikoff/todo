@@ -57,12 +57,6 @@ defmodule Todo.TasksTest do
       assert list.archived == false
     end
 
-    test "delete_list/1 deletes the list" do
-      list = list_fixture()
-      assert {:ok, %List{}} = Tasks.delete_list(list)
-      assert_raise Ecto.NoResultsError, fn -> Tasks.get_list!(list.id) end
-    end
-
     test "change_list/1 returns a list changeset" do
       assert %Ecto.Changeset{} = Tasks.change_list(:new)
 
@@ -133,12 +127,6 @@ defmodule Todo.TasksTest do
 
       assert {:ok, %Item{} = item} = Tasks.switch_item_completed(item)
       assert item.completed == false
-    end
-
-    test "delete_item/1 deletes the item" do
-      item = item_fixture()
-      assert {:ok, %Item{}} = Tasks.delete_item(item)
-      assert_raise Ecto.NoResultsError, fn -> Tasks.get_item!(item.id) end
     end
 
     test "change_item/1 returns a item changeset" do
