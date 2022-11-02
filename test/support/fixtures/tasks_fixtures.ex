@@ -11,7 +11,7 @@ defmodule Todo.TasksFixtures do
     {:ok, list} =
       attrs
       |> Enum.into(%{
-        archived: true,
+        archived: false,
         title: "some title"
       })
       |> Todo.Tasks.create_list()
@@ -28,7 +28,7 @@ defmodule Todo.TasksFixtures do
     {:ok, item} =
       attrs
       |> Enum.into(%{
-        completed: true,
+        completed: false,
         content: "some content",
         list_id: list.id
       })

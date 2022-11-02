@@ -22,7 +22,13 @@ defmodule Todo.Tasks.List do
   end
 
   @doc false
-  def changeset(list, attrs) do
+  def create_changeset(list, attrs) do
+    list
+    |> cast(attrs, [:title])
+    |> validate_required([:title])
+  end
+
+  def update_changeset(list, attrs) do
     list
     |> cast(attrs, [:title, :archived])
     |> validate_required([:title, :archived])

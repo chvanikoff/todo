@@ -19,9 +19,15 @@ defmodule Todo.Tasks.List.Item do
   end
 
   @doc false
-  def changeset(item, attrs) do
+  def create_changeset(item, attrs) do
     item
-    |> cast(attrs, [:content, :completed, :list_id])
-    |> validate_required([:content, :completed, :list_id])
+    |> cast(attrs, [:content, :list_id])
+    |> validate_required([:content, :list_id])
+  end
+
+  def update_changeset(item, attrs) do
+    item
+    |> cast(attrs, [:content, :completed])
+    |> validate_required([:content, :completed])
   end
 end

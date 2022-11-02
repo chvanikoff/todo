@@ -55,7 +55,7 @@ defmodule Todo.Tasks do
   """
   def create_list(attrs \\ %{}) do
     %List{}
-    |> List.changeset(attrs)
+    |> List.create_changeset(attrs)
     |> Repo.insert()
   end
 
@@ -73,7 +73,7 @@ defmodule Todo.Tasks do
   """
   def update_list(%List{} = list, attrs) do
     list
-    |> List.changeset(attrs)
+    |> List.update_changeset(attrs)
     |> Repo.update()
   end
 
@@ -117,8 +117,14 @@ defmodule Todo.Tasks do
       %Ecto.Changeset{data: %List{}}
 
   """
-  def change_list(%List{} = list, attrs \\ %{}) do
-    List.changeset(list, attrs)
+  def change_list(list, attrs \\ %{})
+
+  def change_list(:new, attrs) do
+    List.create_changeset(%List{}, attrs)
+  end
+
+  def change_list(%List{} = list, attrs) do
+    List.update_changeset(list, attrs)
   end
 
   alias Todo.Tasks.List.Item
@@ -170,7 +176,7 @@ defmodule Todo.Tasks do
   """
   def create_item(attrs \\ %{}) do
     %Item{}
-    |> Item.changeset(attrs)
+    |> Item.create_changeset(attrs)
     |> Repo.insert()
   end
 
@@ -188,7 +194,7 @@ defmodule Todo.Tasks do
   """
   def update_item(%Item{} = item, attrs) do
     item
-    |> Item.changeset(attrs)
+    |> Item.update_changeset(attrs)
     |> Repo.update()
   end
 
@@ -232,7 +238,13 @@ defmodule Todo.Tasks do
       %Ecto.Changeset{data: %Item{}}
 
   """
-  def change_item(%Item{} = item, attrs \\ %{}) do
-    Item.changeset(item, attrs)
+  def change_item(item, attrs \\ %{})
+
+  def change_item(:new, attrs) do
+    Item.create_changeset(%Item{}, attrs)
+  end
+
+  def change_item(%Item{} = item, attrs) do
+    Item.update_changeset(item, attrs)
   end
 end

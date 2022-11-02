@@ -4,9 +4,9 @@ defmodule TodoWeb.ListLiveTest do
   import Phoenix.LiveViewTest
   import Todo.TasksFixtures
 
-  @create_attrs %{archived: true, title: "some title"}
-  @update_attrs %{archived: false, title: "some updated title"}
-  @invalid_attrs %{archived: false, title: nil}
+  @create_attrs %{title: "some title"}
+  @update_attrs %{title: "some updated title"}
+  @invalid_attrs %{title: nil}
 
   defp create_list(_) do
     list = list_fixture()
@@ -84,9 +84,9 @@ defmodule TodoWeb.ListLiveTest do
   describe "Show" do
     setup [:create_list]
 
-    @create_attrs %{completed: true, content: "some content"}
-    @update_attrs %{completed: false, content: "some updated content"}
-    @invalid_attrs %{completed: false, content: nil}
+    @create_attrs %{content: "some content"}
+    @update_attrs %{content: "some updated content"}
+    @invalid_attrs %{content: nil}
 
     test "displays all items in the list", %{conn: conn, list: list} do
       item1 = item_fixture(%{list_id: list.id})

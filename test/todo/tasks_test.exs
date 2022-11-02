@@ -24,7 +24,7 @@ defmodule Todo.TasksTest do
       valid_attrs = %{archived: true, title: "some title"}
 
       assert {:ok, %List{} = list} = Tasks.create_list(valid_attrs)
-      assert list.archived == true
+      assert list.archived == false
       assert list.title == "some title"
     end
 
@@ -64,6 +64,8 @@ defmodule Todo.TasksTest do
     end
 
     test "change_list/1 returns a list changeset" do
+      assert %Ecto.Changeset{} = Tasks.change_list(:new)
+
       list = list_fixture()
       assert %Ecto.Changeset{} = Tasks.change_list(list)
     end
@@ -100,7 +102,7 @@ defmodule Todo.TasksTest do
       valid_attrs = %{completed: true, content: "some content", list_id: list.id}
 
       assert {:ok, %Item{} = item} = Tasks.create_item(valid_attrs)
-      assert item.completed == true
+      assert item.completed == false
       assert item.content == "some content"
     end
 
@@ -140,6 +142,8 @@ defmodule Todo.TasksTest do
     end
 
     test "change_item/1 returns a item changeset" do
+      assert %Ecto.Changeset{} = Tasks.change_item(:new)
+
       item = item_fixture()
       assert %Ecto.Changeset{} = Tasks.change_item(item)
     end
