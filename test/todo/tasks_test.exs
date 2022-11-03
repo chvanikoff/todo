@@ -63,6 +63,48 @@ defmodule Todo.TasksTest do
       list = list_fixture()
       assert %Ecto.Changeset{} = Tasks.change_list(list)
     end
+
+    test "archive_stale_lists/0" do
+      list1 = list_fixture() |> Repo.preload(:items)
+      list2 = list_fixture() |> Repo.preload(:items)
+      list3 = list_fixture() |> Repo.preload(:items)
+      list4 = list_fixture() |> Repo.preload(:items)
+
+      day_ago =
+        NaiveDateTime.utc_now()
+        |> NaiveDateTime.add(-1, :day)
+        |> NaiveDateTime.truncate(:second)
+
+      Enum.each([list1, list2], fn list ->
+        list
+        |> Ecto.Changeset.change()
+        |> force_change(:updated_at, day_ago)
+        |> Todo.Repo.update()
+      end)
+
+      Tasks.switch_list_archived(list3)
+
+      list3 = Tasks.get_list!(list3.id)
+
+      Tasks.archive_stale_lists()
+
+      new_list1 = Tasks.get_list!(list1.id)
+      new_list2 = Tasks.get_list!(list2.id)
+      new_list3 = Tasks.get_list!(list3.id)
+      new_list4 = Tasks.get_list!(list4.id)
+
+      refute new_list1 == list1
+      assert new_list1.archived
+
+      refute new_list2 == list2
+      assert new_list2.archived
+
+      assert new_list3 == list3
+      assert new_list3.archived
+
+      assert new_list4 == list4
+      refute new_list4.archived
+    end
   end
 
   describe "items" do

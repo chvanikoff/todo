@@ -141,6 +141,15 @@ defmodule Todo.Tasks do
     List.update_changeset(list, attrs)
   end
 
+  def archive_stale_lists do
+    query =
+      from l in List,
+        where: l.updated_at <= ago(1, "day"),
+        where: l.archived == false
+
+    Repo.update_all(query, set: [archived: true])
+  end
+
   @doc """
   Returns the list of items in the list.
 
