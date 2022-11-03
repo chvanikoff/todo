@@ -1,19 +1,62 @@
-# Todo
+Todo
+===
 
-To start your Phoenix server:
+> Todo App written in Elixir/Phoenix using Postgres
 
-  * Install dependencies with `mix deps.get`
-  * Create and migrate your database with `mix ecto.setup`
-  * Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix phx.server`
+Task description: https://kb.sruplex.com/public/posts/elixir-take-home-exercise-jdgbsjkp
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+## Setup
 
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
+Following dependencies are required:
 
-## Learn more
+ - Erlang 25.1.2
+ - Elixir 1.14.1-otp-25
+ - Postgres 14
 
-  * Official website: https://www.phoenixframework.org/
-  * Guides: https://hexdocs.pm/phoenix/overview.html
-  * Docs: https://hexdocs.pm/phoenix
-  * Forum: https://elixirforum.com/c/phoenix-forum
-  * Source: https://github.com/phoenixframework/phoenix
+.tools-versions file is in the project root dir for the ASDF users
+
+Compile Application and Assets:
+
+```bash
+$ mix do deps.get, compile
+$ mix do ecto.reset
+```
+
+<br>
+
+
+
+
+## Running the App
+
+To start the app
+
+```bash
+$ mix phx.server
+```
+
+
+
+## Implementation Details
+
+
+
+<br>
+
+
+
+
+## Testing and Contributing
+
+```bash
+$ mix test
+```
+
+<br>
+
+
+
+
+## License
+
+The code will soon be available under the terms of the [MIT License][license].
