@@ -44,6 +44,25 @@ defmodule TodoWeb.ListLiveTest do
       assert html =~ "some title"
     end
 
+    test "Broadcasts new list creation", %{conn: conn} do
+      {:ok, index_live, _html} = live(conn, Routes.list_index_path(conn, :index))
+
+      conn2 = Phoenix.ConnTest.build_conn()
+      {:ok, index_live2, _html} = live(conn2, Routes.list_index_path(conn2, :index))
+
+      refute render(index_live2) =~ @create_attrs.title
+
+      index_live
+      |> element("a", "New List")
+      |> render_click()
+
+      index_live
+      |> form("#list-form", list: @create_attrs)
+      |> render_submit()
+
+      assert render(index_live2) =~ @create_attrs.title
+    end
+
     test "updates list in listing", %{conn: conn} do
       list = list_fixture()
       {:ok, index_live, _html} = live(conn, Routes.list_index_path(conn, :index))
@@ -67,6 +86,26 @@ defmodule TodoWeb.ListLiveTest do
       assert html =~ "some updated title"
     end
 
+    test "Broadcasts list updates", %{conn: conn} do
+      list = list_fixture()
+      {:ok, index_live, _html} = live(conn, Routes.list_index_path(conn, :index))
+
+      conn2 = Phoenix.ConnTest.build_conn()
+      {:ok, index_live2, _html} = live(conn2, Routes.list_index_path(conn2, :index))
+
+      refute render(index_live2) =~ @update_attrs.title
+
+      index_live
+      |> element("#list-#{list.id} a", "Edit")
+      |> render_click()
+
+      index_live
+      |> form("#list-form", list: @update_attrs)
+      |> render_submit()
+
+      assert render(index_live2) =~ @update_attrs.title
+    end
+
     test "switches list `archived` flag back and forth", %{conn: conn} do
       list = list_fixture(%{archived: false})
       {:ok, index_live, _html} = live(conn, Routes.list_index_path(conn, :index))
@@ -78,6 +117,26 @@ defmodule TodoWeb.ListLiveTest do
       refute index_live
              |> element("#list-#{list.id} input[type=checkbox]")
              |> render_click() =~ "checked=\"checked\""
+    end
+
+    test "Broadcasts list archived state updates", %{conn: conn} do
+      list = list_fixture()
+      {:ok, index_live, _html} = live(conn, Routes.list_index_path(conn, :index))
+
+      conn2 = Phoenix.ConnTest.build_conn()
+      {:ok, index_live2, _html} = live(conn2, Routes.list_index_path(conn2, :index))
+
+      refute index_live2
+             |> element("#list-#{list.id} input[type=checkbox]")
+             |> render() =~ "checked=\"checked\""
+
+      index_live
+      |> element("#list-#{list.id} input[type=checkbox]")
+      |> render_click()
+
+      assert index_live2
+             |> element("#list-#{list.id} input[type=checkbox]")
+             |> render() =~ "checked=\"checked\""
     end
   end
 

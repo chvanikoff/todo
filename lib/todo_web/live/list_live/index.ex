@@ -6,6 +6,7 @@ defmodule TodoWeb.ListLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
+    if connected?(socket), do: Phoenix.PubSub.subscribe(Todo.PubSub, "lists")
     {:ok, socket}
   end
 
@@ -42,6 +43,15 @@ defmodule TodoWeb.ListLive.Index do
     list = Tasks.get_list!(id)
     {:ok, _new_list} = Tasks.switch_list_archived(list)
 
+    {:noreply, assign(socket, :lists, list_lists())}
+  end
+
+  @impl true
+  def handle_info({:new_list, list}, socket) do
+    {:noreply, assign(socket, :lists, [list | socket.assigns.lists])}
+  end
+
+  def handle_info({:update_list, _list}, socket) do
     {:noreply, assign(socket, :lists, list_lists())}
   end
 

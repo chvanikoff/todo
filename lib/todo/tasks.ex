@@ -65,6 +65,7 @@ defmodule Todo.Tasks do
     %List{}
     |> List.create_changeset(attrs)
     |> Repo.insert()
+    |> maybe_broadcast(:create_list)
   end
 
   @doc """
@@ -105,6 +106,7 @@ defmodule Todo.Tasks do
     end)
     |> Ecto.Multi.update(:update, &List.update_changeset(&1.get, attrs))
     |> Repo.transaction()
+    |> maybe_broadcast(:update_list)
   end
 
   @doc """
@@ -123,6 +125,7 @@ defmodule Todo.Tasks do
     list
     |> List.update_changeset(%{archived: !list.archived})
     |> Repo.update()
+    |> maybe_broadcast(:update_list)
   end
 
   @doc """
@@ -327,4 +330,21 @@ defmodule Todo.Tasks do
   def change_item(%Item{} = item, attrs) do
     Item.update_changeset(item, attrs)
   end
+
+  defp maybe_broadcast({:ok, %{update: list}} = result, :update_list) do
+    Phoenix.PubSub.broadcast(Todo.PubSub, "lists", {:update_list, list})
+    result
+  end
+
+  defp maybe_broadcast({:ok, list} = result, :update_list) do
+    Phoenix.PubSub.broadcast(Todo.PubSub, "lists", {:update_list, list})
+    result
+  end
+
+  defp maybe_broadcast({:ok, list} = result, :create_list) do
+    Phoenix.PubSub.broadcast(Todo.PubSub, "lists", {:new_list, list})
+    result
+  end
+
+  defp maybe_broadcast(result, _op), do: result
 end
