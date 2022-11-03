@@ -73,3 +73,9 @@ config :phoenix, :stacktrace_depth, 20
 
 # Initialize plugs at runtime for faster development compilation
 config :phoenix, :plug_init_mode, :runtime
+
+config :todo, :env, :dev
+
+config :todo, :lists_cleanup,
+  archive_after: {1, "minute"},
+  interval_in_seconds: 15_000

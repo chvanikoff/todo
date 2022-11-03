@@ -7,18 +7,17 @@ defmodule Todo.Application do
 
   @impl true
   def start(_type, _args) do
-    children = [
-      # Start the Ecto repository
-      Todo.Repo,
-      # Start the Telemetry supervisor
-      TodoWeb.Telemetry,
-      # Start the PubSub system
-      {Phoenix.PubSub, name: Todo.PubSub},
-      # Start the Endpoint (http/https)
-      TodoWeb.Endpoint
-      # Start a worker by calling: Todo.Worker.start_link(arg)
-      # {Todo.Worker, arg}
-    ]
+    children =
+      [
+        # Start the Ecto repository
+        Todo.Repo,
+        # Start the Telemetry supervisor
+        TodoWeb.Telemetry,
+        # Start the PubSub system
+        {Phoenix.PubSub, name: Todo.PubSub},
+        # Start the Endpoint (http/https)
+        TodoWeb.Endpoint
+      ] ++ env_children(Application.get_env(:todo, :env))
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
@@ -32,5 +31,12 @@ defmodule Todo.Application do
   def config_change(changed, _new, removed) do
     TodoWeb.Endpoint.config_change(changed, removed)
     :ok
+  end
+
+  defp env_children(:test), do: []
+
+  defp env_children(_env) do
+    cleanup_interval = Application.fetch_env!(:todo, :lists_cleanup)[:interval_in_seconds]
+    [{Todo.Cleanup, [cleanup_interval]}]
   end
 end

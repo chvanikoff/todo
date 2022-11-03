@@ -141,10 +141,17 @@ defmodule Todo.Tasks do
     List.update_changeset(list, attrs)
   end
 
+  @doc """
+  Archives stale lists based on config values of
+  todo.lists_cleanup.archive_after
+  """
+  @spec archive_stale_lists() :: {non_neg_integer(), nil | [term()]}
   def archive_stale_lists do
+    {ago_time, ago_units} = Application.fetch_env!(:todo, :lists_cleanup)[:archive_after]
+
     query =
       from l in List,
-        where: l.updated_at <= ago(1, "day"),
+        where: l.updated_at <= ago(^ago_time, ^ago_units),
         where: l.archived == false
 
     Repo.update_all(query, set: [archived: true])
