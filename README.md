@@ -4,6 +4,7 @@ Todo
 > Todo App written in Elixir/Phoenix using Postgres
 
 Task description: https://kb.sruplex.com/public/posts/elixir-take-home-exercise-jdgbsjkp
+
 Demo: https://floral-frog-2944.fly.dev
 
 ## Setup
