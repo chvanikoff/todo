@@ -45,13 +45,13 @@ defmodule TodoWeb.ListLive.ItemFormComponent do
     item_params = Map.put(item_params, "list_id", socket.assigns.list_id)
 
     case Tasks.create_item(item_params) do
-      {:ok, _item} ->
+      {:ok, %{item: _item}} ->
         {:noreply,
          socket
          |> put_flash(:info, "Item created successfully")
          |> push_redirect(to: socket.assigns.return_to)}
 
-      {:error, %Ecto.Changeset{} = changeset} ->
+      {:error, _step, %Ecto.Changeset{} = changeset, _acc} ->
         {:noreply, assign(socket, changeset: changeset)}
     end
   end

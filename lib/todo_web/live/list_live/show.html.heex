@@ -40,15 +40,27 @@
     <%= for item <- @list.items do %>
       <tr id={"item-#{item.id}"}>
         <td><%= item.content %></td>
-        <td><input type="checkbox" checked={item.completed} phx-value-id={item.id} phx-click="switch_completed" /></td>
-
         <td>
+          <%= if @list.archived do %>
+            <input type="checkbox" checked={item.completed} disabled="disabled" />
+          <% else %>
+            <input type="checkbox" checked={item.completed} phx-value-id={item.id} phx-click="switch_completed" />
+          <% end %>
+        </td>
+        <td>
+          <%= # unless @list.archived do %>
+          <% # kept for demo purpose %>
           <span><%= live_patch "Edit", to: Routes.list_show_path(@socket, :edit, @list, item) %></span>
+          <% # end %>
         </td>
       </tr>
     <% end %>
   </tbody>
 </table>
 
+
 <span><%= live_redirect "Back", to: Routes.list_index_path(@socket, :index) %></span>
+<%= # unless @list.archived do %>
+<% # kept for demo purpose %>
 <span><%= live_patch "New Item", to: Routes.list_show_path(@socket, :new, @list) %></span>
+<% # end %>

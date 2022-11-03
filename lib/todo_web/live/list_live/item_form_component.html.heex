@@ -13,6 +13,10 @@
     <%= text_input f, :content %>
     <%= error_tag f, :content %>
 
+    <%= with {message, _} <- @changeset.errors[:archived] do %>
+    <span><%= message %></span>
+    <% end %>
+
     <div>
       <%= submit "Save", phx_disable_with: "Saving..." %>
     </div>

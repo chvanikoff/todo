@@ -154,22 +154,69 @@ defmodule Todo.Tasks do
   def get_item!(id), do: Repo.get!(Item, id)
 
   @doc """
-  Creates a item.
+  Creates an item, taking possible RC into account.
+
+  Simpler version (without RC considering) could be something like this
+  (pseudocode):
+  ```elixir
+  with %List{archived: false} <- get_list!(list_id),
+    {:ok, item} <- do_create_item(attrs) do
+      {:ok, item}
+  else
+    %List{} = list ->
+      build error changeset
+    {:error, changeset} ->
+      {:error, changeset}
+  end
+  ```
 
   ## Examples
 
       iex> create_item(%{field: value})
-      {:ok, %Item{}}
+      {:ok, %{item: %Item{}, list: %List{}}}
 
       iex> create_item(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
+      {:error, :item, %Ecto.Changeset{}, %{list: %List{}}}
 
   """
-  @spec create_item(map()) :: {:ok, Item.t()} | {:error, Ecto.Changeset.t()}
-  def create_item(attrs \\ %{}) do
-    %Item{}
-    |> Item.create_changeset(attrs)
-    |> Repo.insert()
+  @spec create_item(map()) ::
+          {:ok, %{list: List.t(), item: Item.t()}}
+          | {:error, :list, Ecto.Changeset.t(), map()}
+          | {:error, :item, Ecto.Changeset.t(), map()}
+  def create_item(attrs) do
+    # We expect both trusted (i.e., from tests) and untrusted (i.e., from
+    # LiveViews) data in the `attrs`
+
+    is_trusted? = Map.has_key?(attrs, :list_id)
+
+    list_id_key = if is_trusted?, do: :list_id, else: "list_id"
+
+    list_id = Map.get(attrs, list_id_key)
+
+    # The lock and transaction are to avoid possible race condition when two or
+    # more processes simulthaneously set list status to "archived" and attempt
+    # to create an item in the list
+    Ecto.Multi.new()
+    |> Ecto.Multi.run(:list, fn _repo, _acc ->
+      query =
+        from l in List,
+          where: l.id == ^list_id,
+          where: l.archived == false,
+          lock: "FOR UPDATE"
+
+      case Repo.one(query) do
+        nil ->
+          {:error,
+           %Item{}
+           |> Ecto.Changeset.change(%{})
+           |> Ecto.Changeset.add_error(:archived, "The list has been archived")}
+
+        %List{} = list ->
+          {:ok, list}
+      end
+    end)
+    |> Ecto.Multi.insert(:item, Item.create_changeset(%Item{}, attrs))
+    |> Repo.transaction()
   end
 
   @doc """

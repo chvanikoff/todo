@@ -95,13 +95,26 @@ defmodule Todo.TasksTest do
       list = list_fixture()
       valid_attrs = %{completed: true, content: "some content", list_id: list.id}
 
-      assert {:ok, %Item{} = item} = Tasks.create_item(valid_attrs)
+      assert {:ok, %{item: %Item{} = item}} = Tasks.create_item(valid_attrs)
       assert item.completed == false
       assert item.content == "some content"
     end
 
     test "create_item/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Tasks.create_item(@invalid_attrs)
+      list = list_fixture()
+      invalid_attrs = Map.put(@invalid_attrs, :list_id, list.id)
+      assert {:error, :item, %Ecto.Changeset{}, _acc} = Tasks.create_item(invalid_attrs)
+    end
+
+    test "create_item/1 does not create item in archived list" do
+      list = list_fixture()
+      {:ok, list} = Tasks.switch_list_archived(list)
+
+      valid_attrs = %{completed: true, content: "some content", list_id: list.id}
+
+      assert {:error, :list, %Ecto.Changeset{} = changeset, _acc} = Tasks.create_item(valid_attrs)
+
+      assert Keyword.has_key?(changeset.errors, :archived)
     end
 
     test "update_item/2 with valid data updates the item" do
