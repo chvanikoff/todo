@@ -121,24 +121,24 @@ defmodule Todo.TasksTest do
       item = item_fixture()
       update_attrs = %{completed: false, content: "some updated content"}
 
-      assert {:ok, %Item{} = item} = Tasks.update_item(item, update_attrs)
+      assert {:ok, %{item: %Item{} = item}} = Tasks.update_item(item, update_attrs)
       assert item.completed == false
       assert item.content == "some updated content"
     end
 
     test "update_item/2 with invalid data returns error changeset" do
       item = item_fixture()
-      assert {:error, %Ecto.Changeset{}} = Tasks.update_item(item, @invalid_attrs)
+      assert {:error, :item, %Ecto.Changeset{}, _acc} = Tasks.update_item(item, @invalid_attrs)
       assert item == Tasks.get_item!(item.id)
     end
 
     test "switch_item_completed/1 switches the item `completed` flag" do
       item = item_fixture(%{completed: false})
 
-      assert {:ok, %Item{} = item} = Tasks.switch_item_completed(item)
+      assert {:ok, %{item: %Item{} = item}} = Tasks.switch_item_completed(item)
       assert item.completed == true
 
-      assert {:ok, %Item{} = item} = Tasks.switch_item_completed(item)
+      assert {:ok, %{item: %Item{} = item}} = Tasks.switch_item_completed(item)
       assert item.completed == false
     end
 

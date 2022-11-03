@@ -30,13 +30,13 @@ defmodule TodoWeb.ListLive.ItemFormComponent do
 
   defp save_item(socket, :edit, item_params) do
     case Tasks.update_item(socket.assigns.item, item_params) do
-      {:ok, _item} ->
+      {:ok, %{item: _item}} ->
         {:noreply,
          socket
          |> put_flash(:info, "Item updated successfully")
          |> push_redirect(to: socket.assigns.return_to)}
 
-      {:error, %Ecto.Changeset{} = changeset} ->
+      {:error, _step, %Ecto.Changeset{} = changeset, _acc} ->
         {:noreply, assign(socket, :changeset, changeset)}
     end
   end
