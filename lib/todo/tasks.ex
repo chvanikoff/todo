@@ -204,10 +204,10 @@ defmodule Todo.Tasks do
   ## Examples
 
       iex> update_item(item, %{field: new_value})
-      {:ok, %Item{}}
+      {:ok, %{item: %Item{}, list: %List{}}
 
       iex> update_item(item, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
+      {:error, :item, %Ecto.Changeset{}, %{list: %List{}}}
 
   """
   @spec update_item(Item.t(), map()) ::
@@ -252,12 +252,15 @@ defmodule Todo.Tasks do
   ## Examples
 
       iex> switch_item_completed(%Item{completed: false})
-      {:ok, %Item{completed: true}}
+      {:ok, %{item: %Item{completed: true}, list: %List{}}}
 
       iex> switch_item_completed(%Item{completed: true})
-      {:ok, %Item{completed: false}}
+      {:ok, %{item: %Item{completed: false}, list: %List{}}
   """
-  @spec switch_item_completed(Item.t()) :: {:ok, Item.t()} | {:error, Ecto.Changeset.t()}
+  @spec switch_item_completed(Item.t()) ::
+          {:ok, %{list: List.t(), item: Item.t()}}
+          | {:error, :list, Ecto.Changeset.t(), map()}
+          | {:error, :item, Ecto.Changeset.t(), map()}
   def switch_item_completed(%Item{} = item) do
     update_item(item, %{completed: not item.completed})
   end
