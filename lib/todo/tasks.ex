@@ -242,6 +242,7 @@ defmodule Todo.Tasks do
     |> multi_get_and_lock_unarchived_list()
     |> Ecto.Multi.insert(:item, Item.create_changeset(%Item{}, attrs))
     |> Repo.transaction()
+    |> maybe_broadcast(:new_item)
   end
 
   @doc """
@@ -343,6 +344,11 @@ defmodule Todo.Tasks do
 
   defp maybe_broadcast({:ok, list} = result, :create_list) do
     Phoenix.PubSub.broadcast(Todo.PubSub, "lists", {:new_list, list})
+    result
+  end
+
+  defp maybe_broadcast({:ok, %{item: item}} = result, :new_item) do
+    Phoenix.PubSub.broadcast(Todo.PubSub, "items:#{item.list_id}", {:new_item, item})
     result
   end
 

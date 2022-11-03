@@ -181,6 +181,25 @@ defmodule TodoWeb.ListLiveTest do
       assert html =~ "some content"
     end
 
+    test "Broadcasts new item creation", %{conn: conn, list: list} do
+      {:ok, index_live, _html} = live(conn, Routes.list_show_path(conn, :show, list))
+
+      conn2 = Phoenix.ConnTest.build_conn()
+      {:ok, index_live2, _html} = live(conn2, Routes.list_show_path(conn2, :show, list))
+
+      refute render(index_live2) =~ @create_attrs.content
+
+      index_live
+      |> element("a", "New Item")
+      |> render_click()
+
+      index_live
+      |> form("#item-form", item: @create_attrs)
+      |> render_submit()
+
+      assert render(index_live2) =~ @create_attrs.content
+    end
+
     test "updates item in listing", %{conn: conn, list: list} do
       item = item_fixture(%{list_id: list.id})
 

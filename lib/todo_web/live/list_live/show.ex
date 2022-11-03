@@ -5,7 +5,8 @@ defmodule TodoWeb.ListLive.Show do
   alias Todo.Tasks.List.Item
 
   @impl true
-  def mount(_params, _session, socket) do
+  def mount(%{"list_id" => list_id} = _params, _session, socket) do
+    if connected?(socket), do: Phoenix.PubSub.subscribe(Todo.PubSub, "items:#{list_id}")
     {:ok, socket}
   end
 
@@ -38,6 +39,11 @@ defmodule TodoWeb.ListLive.Show do
     item = Tasks.get_item!(id)
     {:ok, %{item: _new_item}} = Tasks.switch_item_completed(item)
 
+    {:noreply, assign(socket, :list, Tasks.get_list!(socket.assigns.list.id))}
+  end
+
+  @impl true
+  def handle_info({:new_item, _item}, socket) do
     {:noreply, assign(socket, :list, Tasks.get_list!(socket.assigns.list.id))}
   end
 
