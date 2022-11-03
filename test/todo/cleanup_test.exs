@@ -12,17 +12,7 @@ defmodule Todo.CleanupTest do
       list3 = list_fixture() |> Repo.preload(:items)
       list4 = list_fixture() |> Repo.preload(:items)
 
-      day_ago =
-        NaiveDateTime.utc_now()
-        |> NaiveDateTime.add(-1, :day)
-        |> NaiveDateTime.truncate(:second)
-
-      Enum.each([list1, list2], fn list ->
-        list
-        |> Ecto.Changeset.change()
-        |> Ecto.Changeset.force_change(:updated_at, day_ago)
-        |> Todo.Repo.update()
-      end)
+      Enum.each([list1, list2], &update_time_field(&1, :updated_at, {-1, :day}))
 
       Tasks.switch_list_archived(list3)
 
@@ -53,15 +43,7 @@ defmodule Todo.CleanupTest do
     test "runs repeatedly" do
       list1 = list_fixture() |> Repo.preload(:items)
 
-      day_ago =
-        NaiveDateTime.utc_now()
-        |> NaiveDateTime.add(-1, :day)
-        |> NaiveDateTime.truncate(:second)
-
-      list1
-      |> Ecto.Changeset.change()
-      |> Ecto.Changeset.force_change(:updated_at, day_ago)
-      |> Todo.Repo.update()
+      update_time_field(list1, :updated_at, {-1, :day})
 
       {:ok, _pid} = start_supervised({Todo.Cleanup, [100]})
 
@@ -74,15 +56,7 @@ defmodule Todo.CleanupTest do
 
       list2 = list_fixture() |> Repo.preload(:items)
 
-      day_ago =
-        NaiveDateTime.utc_now()
-        |> NaiveDateTime.add(-1, :day)
-        |> NaiveDateTime.truncate(:second)
-
-      list2
-      |> Ecto.Changeset.change()
-      |> Ecto.Changeset.force_change(:updated_at, day_ago)
-      |> Todo.Repo.update()
+      update_time_field(list2, :updated_at, {-1, :day})
 
       Process.sleep(150)
 

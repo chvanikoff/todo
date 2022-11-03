@@ -10,7 +10,7 @@ defmodule Todo.Tasks do
   alias __MODULE__.List.Item
 
   @doc """
-  Returns the list of lists.
+  Returns the list of lists ordered by `inserted_at` column descending.
 
   ## Examples
 
@@ -20,7 +20,11 @@ defmodule Todo.Tasks do
   """
   @spec list_lists() :: [List.t()]
   def list_lists do
-    Repo.all(List)
+    query =
+      from l in List,
+        order_by: [desc: l.inserted_at]
+
+    Repo.all(query)
   end
 
   @doc """

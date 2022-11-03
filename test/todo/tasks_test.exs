@@ -10,9 +10,14 @@ defmodule Todo.TasksTest do
 
     @invalid_attrs %{archived: nil, title: nil}
 
-    test "list_lists/0 returns all lists" do
-      list = list_fixture()
-      assert Tasks.list_lists() == [list]
+    test "list_lists/0 returns all lists ordered by inserted_at" do
+      list1 = list_fixture()
+      list2 = list_fixture()
+      list3 = list_fixture()
+
+      {:ok, updated_list2} = update_time_field(list2, :inserted_at, {-1, :minute})
+
+      assert Tasks.list_lists() == [list1, list3, updated_list2]
     end
 
     test "get_list!/1 returns the list with given id" do
@@ -70,17 +75,7 @@ defmodule Todo.TasksTest do
       list3 = list_fixture() |> Repo.preload(:items)
       list4 = list_fixture() |> Repo.preload(:items)
 
-      day_ago =
-        NaiveDateTime.utc_now()
-        |> NaiveDateTime.add(-1, :day)
-        |> NaiveDateTime.truncate(:second)
-
-      Enum.each([list1, list2], fn list ->
-        list
-        |> Ecto.Changeset.change()
-        |> force_change(:updated_at, day_ago)
-        |> Todo.Repo.update()
-      end)
+      Enum.each([list1, list2], &update_time_field(&1, :updated_at, {-1, :day}))
 
       Tasks.switch_list_archived(list3)
 
@@ -114,18 +109,20 @@ defmodule Todo.TasksTest do
 
     @invalid_attrs %{completed: nil, content: nil}
 
-    test "list_items/1 returns all items in the list" do
+    test "list_items/1 returns all items in the list ordered by inserted_at" do
       list1 = list_fixture()
       list2 = list_fixture()
       item1 = item_fixture(%{list_id: list1.id})
       item2 = item_fixture(%{list_id: list1.id})
-      item3 = item_fixture(%{list_id: list2.id})
+      item3 = item_fixture(%{list_id: list1.id})
+      item4 = item_fixture(%{list_id: list2.id})
+
+      {:ok, updated_item2} = update_time_field(item2, :inserted_at, {-1, :minute})
 
       result = Tasks.list_items(list1.id)
 
-      assert item1 in result
-      assert item2 in result
-      refute item3 in result
+      assert result == [item1, item3, updated_item2]
+      refute item4 in result
     end
 
     test "get_item!/1 returns the item with given id" do

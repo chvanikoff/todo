@@ -55,4 +55,21 @@ defmodule Todo.DataCase do
       end)
     end)
   end
+
+  @doc """
+  Force-update inserted_at or updated_at timestamps of a database record
+  """
+  @spec update_time_field(struct(), :inserted_at | :updated_at, {integer(), atom()}) ::
+          {:ok, struct()} | {:error, Ecto.Changeset.t()}
+  def update_time_field(struct, field, {time, unit}) do
+    new_time =
+      NaiveDateTime.utc_now()
+      |> NaiveDateTime.add(time, unit)
+      |> NaiveDateTime.truncate(:second)
+
+    struct
+    |> Ecto.Changeset.change()
+    |> Ecto.Changeset.force_change(field, new_time)
+    |> Todo.Repo.update()
+  end
 end
