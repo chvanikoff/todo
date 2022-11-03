@@ -47,6 +47,10 @@ defmodule TodoWeb.ListLive.Show do
     {:noreply, assign(socket, :list, Tasks.get_list!(socket.assigns.list.id))}
   end
 
+  def handle_info({:update_item, _item}, socket) do
+    {:noreply, assign(socket, :list, Tasks.get_list!(socket.assigns.list.id))}
+  end
+
   defp page_title(:show), do: "Show List"
   defp page_title(:new), do: "New Item"
   defp page_title(:edit), do: "Edit Item"

@@ -224,8 +224,28 @@ defmodule TodoWeb.ListLiveTest do
       assert html =~ "some updated content"
     end
 
+    test "Broadcasts item updates", %{conn: conn, list: list} do
+      item = item_fixture(%{list_id: list.id})
+      {:ok, index_live, _html} = live(conn, Routes.list_show_path(conn, :show, list))
+
+      conn2 = Phoenix.ConnTest.build_conn()
+      {:ok, index_live2, _html} = live(conn2, Routes.list_show_path(conn2, :show, list))
+
+      refute render(index_live2) =~ @update_attrs.content
+
+      index_live
+      |> element("#item-#{item.id} a", "Edit")
+      |> render_click()
+
+      index_live
+      |> form("#item-form", item: @update_attrs)
+      |> render_submit()
+
+      assert render(index_live2) =~ @update_attrs.content
+    end
+
     test "switches item `completed` flag back and forth", %{conn: conn, list: list} do
-      item = item_fixture(%{list_id: list.id, completed: false})
+      item = item_fixture(%{list_id: list.id})
       {:ok, index_live, _html} = live(conn, Routes.list_show_path(conn, :show, list))
 
       assert index_live
@@ -235,6 +255,27 @@ defmodule TodoWeb.ListLiveTest do
       refute index_live
              |> element("#item-#{item.id} input[type=checkbox]")
              |> render_click() =~ "checked=\"checked\""
+    end
+
+    test "Broadcasts item completed state updates", %{conn: conn, list: list} do
+      item = item_fixture(%{list_id: list.id})
+
+      {:ok, index_live, _html} = live(conn, Routes.list_show_path(conn, :show, list))
+
+      conn2 = Phoenix.ConnTest.build_conn()
+      {:ok, index_live2, _html} = live(conn2, Routes.list_show_path(conn2, :show, list))
+
+      refute index_live2
+             |> element("#item-#{item.id} input[type=checkbox]")
+             |> render() =~ "checked=\"checked\""
+
+      index_live
+      |> element("#item-#{item.id} input[type=checkbox]")
+      |> render_click()
+
+      assert index_live2
+             |> element("#item-#{item.id} input[type=checkbox]")
+             |> render() =~ "checked=\"checked\""
     end
   end
 end
