@@ -29,13 +29,13 @@ defmodule TodoWeb.ListLive.ListFormComponent do
 
   defp save_list(socket, :edit, list_params) do
     case Tasks.update_list(socket.assigns.list, list_params) do
-      {:ok, _list} ->
+      {:ok, %{update: _list}} ->
         {:noreply,
          socket
          |> put_flash(:info, "List updated successfully")
          |> push_redirect(to: socket.assigns.return_to)}
 
-      {:error, %Ecto.Changeset{} = changeset} ->
+      {:error, _op, %Ecto.Changeset{} = changeset, _acc} ->
         {:noreply, assign(socket, :changeset, changeset)}
     end
   end

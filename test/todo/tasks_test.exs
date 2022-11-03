@@ -36,14 +36,14 @@ defmodule Todo.TasksTest do
       list = list_fixture()
       update_attrs = %{archived: false, title: "some updated title"}
 
-      assert {:ok, %List{} = list} = Tasks.update_list(list, update_attrs)
+      assert {:ok, %{update: %List{} = list}} = Tasks.update_list(list, update_attrs)
       assert list.archived == false
       assert list.title == "some updated title"
     end
 
     test "update_list/2 with invalid data returns error changeset" do
       list = list_fixture() |> Repo.preload(:items)
-      assert {:error, %Ecto.Changeset{}} = Tasks.update_list(list, @invalid_attrs)
+      assert {:error, _op, %Ecto.Changeset{}, _acc} = Tasks.update_list(list, @invalid_attrs)
       assert list == Tasks.get_list!(list.id)
     end
 

@@ -64,22 +64,43 @@ defmodule Todo.Tasks do
   end
 
   @doc """
-  Updates a list.
+  Updates an unarchived list.
 
   ## Examples
 
       iex> update_list(list, %{field: new_value})
-      {:ok, %List{}}
+      {:ok, %{get: %List{}, update: %List{}}}
 
       iex> update_list(list, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
+      {:error, :update, %Ecto.Changeset{}, %List{}}
 
   """
-  @spec update_list(List.t(), map()) :: {:ok, List.t()} | {:error, Ecto.Changeset.t()}
-  def update_list(%List{} = list, attrs) do
-    list
-    |> List.update_changeset(attrs)
-    |> Repo.update()
+  @spec update_list(List.t(), map()) ::
+          {:ok, %{get: List.t(), update: List.t()}}
+          | {:error, :get, Ecto.Changeset.t(), map()}
+          | {:error, :update, Ecto.Changeset.t(), map()}
+  def update_list(%List{id: list_id}, attrs) do
+    Ecto.Multi.new()
+    |> Ecto.Multi.run(:get, fn _repo, _acc ->
+      query =
+        from l in List,
+          where: l.id == ^list_id,
+          where: l.archived == false,
+          lock: "FOR UPDATE"
+
+      case Repo.one(query) do
+        nil ->
+          {:error,
+           %List{}
+           |> Ecto.Changeset.change(%{})
+           |> Ecto.Changeset.add_error(:archived, "The list has been archived")}
+
+        %List{} = list ->
+          {:ok, list}
+      end
+    end)
+    |> Ecto.Multi.update(:update, &List.update_changeset(&1.get, attrs))
+    |> Repo.transaction()
   end
 
   @doc """
@@ -95,7 +116,9 @@ defmodule Todo.Tasks do
   """
   @spec switch_list_archived(List.t()) :: {:ok, List.t()} | {:error, Ecto.Changeset.t()}
   def switch_list_archived(%List{} = list) do
-    update_list(list, %{archived: not list.archived})
+    list
+    |> List.update_changeset(%{archived: !list.archived})
+    |> Repo.update()
   end
 
   @doc """
