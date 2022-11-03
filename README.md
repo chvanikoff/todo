@@ -21,7 +21,7 @@ Compile Application and Assets:
 
 ```bash
 $ mix do deps.get, compile
-$ mix do ecto.reset
+$ mix ecto.reset
 ```
 
 <br>
@@ -41,7 +41,11 @@ $ mix phx.server
 
 ## Implementation Details
 
-Todo lists consists of Todo items;
+The application does not require npm or any special JS installations as it is
+written fully with Phoenix LiveView.
+
+Todo lists consists of Todo items. The main page shows all the lists while
+clicking "show" on the list row will show all the items in that list.
 
 All creations and updates (for both lists and items) are broadcasted to all
 connected clients
